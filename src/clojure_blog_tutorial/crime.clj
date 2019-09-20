@@ -31,3 +31,16 @@
               [(fips (fips-code county))
                (:driving_under_influence county)]))
        (into {})))
+
+(defn duis-by-prevalence
+  [file]
+  (->> file
+       load-json
+       (sort-by :driving_under_influence)
+       (filter #(< 0 (:county_population %)))
+       (map (fn [county]
+              (let [duis-count (:driving_under_influence county)
+                    population (:county_population county)]
+                [(fips (fips-code county))
+                 duis-count
+                 (double (/ duis-count population))])))))
