@@ -35,7 +35,7 @@
 
 (defn most-prevalent
   [file field-name]
-  (sort-by field-name (compute-crime file field-name)))
+  (sort-by :prevalence (compute-crime file field-name)))
 
 (defn duis-by-prevalence
   [file]
