@@ -19,38 +19,7 @@
   [county]
   (str (:fips_state_code county) (:fips_county_code county)))
 
-(defn most-duis
-  "Given a JSON filename of UCR crime data for a particular year, finds the
-  counties with the most DUIs."
-  [file]
-  (->> file
-       load-json
-       (sort-by :driving_under_influence)
-       (take-last 10)
-       (map (fn [county]
-              (let [duis-count (:driving_under_influence county)
-                    population (:county_population county)]
-                {:city_name (fips (fips-code county))
-                 :duis_count (:driving_under_influence county)
-                 :population population
-                 :prevalence (double (/ duis-count population))})))))
-
-(defn duis-by-prevalence
-  [file]
-  (->> file
-       load-json
-       (sort-by :driving_under_influence)
-       (filter #(< 0 (:county_population %)))
-       (map (fn [county]
-              (let [duis-count (:driving_under_influence county)
-                    population (:county_population county)]
-                {:city_name (fips (fips-code county))
-                 :duis_count duis-count
-                 :population population
-                 :prevalence (double (/ duis-count population))})))))
-
-
-(defn most-prevalent
+(defn compute-crime
   [file field-name]
   (->> file
        load-json
@@ -63,3 +32,17 @@
                  :crime-count crime-count
                  :population population
                  :prevalence (double (/ crime-count population))})))))
+
+(defn most-prevalent
+  [file field-name]
+  (sort-by field-name (compute-crime file field-name)))
+
+(defn duis-by-prevalence
+  [file]
+  (most-prevalent file :driving_under_influence))
+
+(defn most-duis
+  "Given a JSON filename of UCR crime data for a particular year, finds the
+  counties with the most DUIs."
+  [file]
+  (take-last 10 (compute-crime file :driving_under_influence)))
