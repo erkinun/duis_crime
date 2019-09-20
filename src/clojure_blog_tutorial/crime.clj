@@ -41,6 +41,7 @@
        (map (fn [county]
               (let [duis-count (:driving_under_influence county)
                     population (:county_population county)]
-                [(fips (fips-code county))
-                 duis-count
-                 (double (/ duis-count population))])))))
+                {:city_name (fips (fips-code county))
+                 :duis_count duis-count
+                 :population population
+                 :prevalence (double (/ duis-count population))})))))
