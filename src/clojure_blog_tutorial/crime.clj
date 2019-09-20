@@ -48,3 +48,18 @@
                  :duis_count duis-count
                  :population population
                  :prevalence (double (/ duis-count population))})))))
+
+
+(defn most-prevalent
+  [file field-name]
+  (->> file
+       load-json
+       (sort-by field-name)
+       (filter #(< 0 (:county_population %)))
+       (map (fn [county]
+              (let [crime-count (field-name county)
+                    population (:county_population county)]
+                {:city_name (fips (fips-code county))
+                 :crime-count crime-count
+                 :population population
+                 :prevalence (double (/ crime-count population))})))))
